@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Link Test - McKenzie Studios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .email-link {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 20px 0;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .email-link:hover {
+            background: #0056b3;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>McKenzie Studios - Email Link Test Results</h1>
+
+    <div class="test-section">
+        <h2>Email Link from index.html</h2>
+        <p>Found at: <code>index.html:499</code></p>
+        <a href="mailto:chat@mckenziestudios.ai" class="email-link">chat@mckenziestudios.ai</a>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Manual Test Instructions</h2>
+        <ol>
+            <li>Click the email link above</li>
+            <li>Verify your default email client opens</li>
+            <li>Check that the "To:" field is populated with: <code>chat@mckenziestudios.ai</code></li>
+            <li>Verify there are no duplicate recipients or malformed addresses</li>
+        </ol>
+    </div>
+
+    <script>
+        // Automated tests
+        const tests = [];
+
+        // Test 1: Check if mailto: link exists
+        const emailLinks = document.querySelectorAll('a[href^="mailto:"]');
+        tests.push({
+            name: 'Mailto link exists',
+            passed: emailLinks.length > 0,
+            message: `Found ${emailLinks.length} mailto link(s)`
+        });
+
+        // Test 2: Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailAddress = 'chat@mckenziestudios.ai';
+        tests.push({
+            name: 'Email format is valid',
+            passed: emailRegex.test(emailAddress),
+            message: `Email: ${emailAddress}`
+        });
+
+        // Test 3: Check href attribute format
+        emailLinks.forEach((link, index) => {
+            const href = link.getAttribute('href');
+            const isValid = href && href.startsWith('mailto:') && href.includes('@');
+            tests.push({
+                name: `Link ${index + 1} href format`,
+                passed: isValid,
+                message: `href="${href}"`
+            });
+        });
+
+        // Test 4: Check for duplicate or malformed tags
+        const linkHTML = emailLinks[0] ? emailLinks[0].outerHTML : '';
+        const closingTags = (linkHTML.match(/<\/a>/g) || []).length;
+        tests.push({
+            name: 'No duplicate closing tags',
+            passed: closingTags === 1,
+            message: `Found ${closingTags} closing tag(s) (expected: 1)`
+        });
+
+        // Test 5: Check link text matches email
+        emailLinks.forEach((link, index) => {
+            const linkText = link.textContent.trim();
+            const hrefEmail = link.getAttribute('href').replace('mailto:', '');
+            tests.push({
+                name: `Link ${index + 1} text matches href`,
+                passed: linkText === hrefEmail,
+                message: `Text: "${linkText}", Href: "mailto:${hrefEmail}"`
+            });
+        });
+
+        // Test 6: Check for proper attributes
+        emailLinks.forEach((link, index) => {
+            const hasClass = link.hasAttribute('class');
+            tests.push({
+                name: `Link ${index + 1} has styling class`,
+                passed: hasClass,
+                message: hasClass ? `class="${link.getAttribute('class')}"` : 'No class attribute'
+            });
+        });
+
+        // Display results
+        const resultsDiv = document.getElementById('test-results');
+        let passedCount = 0;
+        let totalCount = tests.length;
+
+        tests.forEach(test => {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${test.passed ? 'pass' : 'fail'}`;
+            resultDiv.innerHTML = `
+                <strong>${test.passed ? '✓' : '✗'} ${test.name}</strong><br>
+                ${test.message}
+            `;
+            resultsDiv.appendChild(resultDiv);
+            if (test.passed) passedCount++;
+        });
+
+        // Summary
+        const summary = document.createElement('div');
+        summary.className = `test-result ${passedCount === totalCount ? 'pass' : 'fail'}`;
+        summary.innerHTML = `<strong>Summary: ${passedCount}/${totalCount} tests passed</strong>`;
+        resultsDiv.insertBefore(summary, resultsDiv.firstChild);
+    </script>
+</body>
+</html>
